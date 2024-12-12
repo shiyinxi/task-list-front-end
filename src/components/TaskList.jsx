@@ -8,7 +8,9 @@ const TaskList = ({ tasks, onCompleteToggle, onDeleteTask}) => {
       return (
         <Task
           key={task.id}
-          tasks={tasks}
+          id={task.id}
+          title={task.title}
+          isComplete={task.isComplete}
           onCompleteToggle={onCompleteToggle}
           onDeleteTask={onDeleteTask}
         />
