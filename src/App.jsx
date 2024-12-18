@@ -1,6 +1,7 @@
 import TaskList from './components/TaskList.jsx';
 import './App.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const TASKS = [
   {
@@ -16,28 +17,44 @@ const TASKS = [
 ];
 
 const App = () => {
-  const [tasksData, setTasksData] = useState(TASKS);
+  const [tasksData, setTasksData] = useState([]);
 
-  const toggleComplete = (taskId) => {
-    // const tasks = tasksData.map(task => {
-    //   if (task.id === taskId) {
-    //     return {...task, isComplete: !task.isComplete};
-    //   } else {
-    //     return task;
-    //   }
-    // });
-    setTasksData((tasksData) => tasksData.map(task => {
-      if (task.id === taskId) {
-        return {...task, isComplete: !task.isComplete};
-      } else {
-        return task;
-      }
-    }));
+  const API_URL = 'http://localhost:5000/tasks';
+
+  useEffect(() => {
+    axios.get(API_URL)
+      .then((response) => {
+        setTasksData(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching tasks:', error);
+      });
+  },[]);
+
+  const toggleComplete = (taskId, isComplete) => {
+    const url = `${API_URL}/${taskId}/${isComplete ? 'mark_incomplete' : 'mark_complete'}`;
+
+    axios.patch(url)
+      .then(() => {
+        setTasksData((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === taskId ? { ...task, isComplete: !isComplete } : task
+          )
+        );
+      })
+      .catch((error) => {
+        console.error('Error updating task status:', error);
+      });
   };
 
   const deleteTask = (taskId) => {
-    // const tasks = tasksData.filter(task => task.id !== taskId);
-    setTasksData((tasksData) => tasksData.filter(task => task.id !== taskId));
+    axios.delete(`${API_URL}/${taskId}`)
+      .then(() => {
+        setTasksData((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+      })
+      .catch((error) => {
+        console.error('Error deleting task:', error);
+      });
   };
 
   return (
