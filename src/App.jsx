@@ -2,6 +2,7 @@ import TaskList from './components/TaskList.jsx';
 import './App.css';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import NewTaskForm from './components/NewTaskForm.jsx';
 
 const kbaseURL = 'http://localhost:5000';
 
@@ -50,7 +51,7 @@ const App = () => {
 
   useEffect(() => {
     getAllTasks();
-  }, []);
+  }, [tasksData]);
 
   const toggleComplete = (taskId) => {
     const task = tasksData.find(task => task.id === taskId);
@@ -78,13 +79,25 @@ const App = () => {
       });
   };
 
+  const handleSubmit = (data) => {
+    axios.post(`${kbaseURL}/tasks`, data)
+      .then((result) => {
+        console.log('response from backend:', tasksData);
+      
+        setTasksData((prevTasks) => [convertFromApi(result.data), ...prevTasks]);
+      })
+      .catch((error) => console.log(error));
+  };
+
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>Ada&apos;s Task List</h1>
       </header>
       <main>
-        <div>{<TaskList tasks={tasksData} onCompleteToggle={toggleComplete} onDeleteTask={deleteTask} />}</div>
+        <div>{<TaskList tasks={tasksData} onCompleteToggle={toggleComplete} onDeleteTask={deleteTask}/>}</div>
+        <NewTaskForm handleSubmit={handleSubmit} />
       </main>
     </div>
   );
