@@ -83,7 +83,6 @@ const App = () => {
     axios.post(`${kbaseURL}/tasks`, data)
       .then((result) => {
         console.log('response from backend:', tasksData);
-      
         setTasksData((prevTasks) => [convertFromApi(result.data), ...prevTasks]);
       })
       .catch((error) => console.log(error));
